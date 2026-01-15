@@ -1,0 +1,17 @@
+'''
+BSseq_analysis/
+├── README.md
+├── data/
+│   └── raw/           # Raw fastq files (not included)
+├── results/
+│   ├── alignments/    # BAM files
+│   ├── methylation/   # methylation calls
+│   ├── DMRs/          # Differentially methylated regions
+│   └── figures/       # Plots
+├── R/
+│   └── bsseq_analysis.R
+├── Python/
+│   └── bsseq_analysis.py
+└── scripts/
+    └── bismark_commands.sh
+'''
