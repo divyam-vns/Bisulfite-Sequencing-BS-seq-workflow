@@ -1,6 +1,6 @@
 # Bisulfite Sequencing (BS-seq) Analysis Pipeline
 
-**Author:** Divya Mishra, Ph.D.  
+**Author:** Dr. Divya Mishra, Ph.D.  
 **Expertise:** Molecular Genetics, Clinical Genomics, NGS Data Analysis  
 
 ---
