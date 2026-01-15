@@ -1,6 +1,6 @@
 # =================================================================
 # Bisulfite Sequencing Analysis in R
-# Author: Divya Mishra, Ph.D.
+# Author: Dr. Divya Mishra, Ph.D.
 # Purpose: Load Bismark output, perform DMR detection, and visualize
 # =================================================================
 
