@@ -1,0 +1,146 @@
+# Workflow A — Standard Bisulfite Sequencing (BS-Seq)
+
+# Overview (Steps)
+# 1. QC and trimming
+# 2. Alignment to bisulfite-converted genome
+# 3. Methylation calling
+# 4. Filtering and QC
+# 5. Differential methylation analysis
+
+# Software & Scripts
+
+# Step 1: Quality Control & Trimming
+# Software: FastQC / MultiQC, Trim Galore!(bisulfite aware)
+
+Example Script
+
+# QC step
+fastqc sample_R1.fastq.gz sample_R2.fastq.gz -o fastqc_reports/
+
+# Adapter + quality trimming
+trim_galore --paired --fastqc --illumina sample_R1.fastq.gz sample_R2.fastq.gz -o trimmed/
+
+# Step 2: Alignment
+
+# Software: Bismark (bisulfite aligner)
+
+# Script
+
+# Build index
+bismark_genome_preparation /path/to/genome/
+
+# Align
+bismark --genome /path/to/genome/ \
+  -1 trimmed/sample_R1_val_1.fq.gz \
+  -2 trimmed/sample_R2_val_2.fq.gz \
+  -o alignments/
+
+# Step 3: Methylation Extraction
+
+# Software: Bismark methylation extractor
+
+#Script
+
+bismark_methylation_extractor -p \
+  --bedGraph --counts \
+  --buffer_size 10G \
+  --genome_folder /path/to/genome \
+  alignments/sample_bismark_bt2_pe.bam
+
+
+# This produces per-CpG methylation counts.
+
+# Step 4: Post-Processing, Filtering & QC
+
+# Tools
+# MultiQC: aggregate QC
+# R scripts (processing bedGraph / coverage files)
+# Optional: convert into CpG methylation matrices
+
+# Example (in R):
+
+library(data.table)
+meth <- fread("CpG_report.txt", header=TRUE)
+# Filter coverage ≥ 5x
+filtered <- meth[meth$coverage >= 5,]
+
+# Step 5: Differential Methylation
+
+# R/Bioconductor Tools: bsseq, DSS, methylKit, BSXplorer (for visualization & interpretation)
+
+# Example (with methylKit):
+
+library(methylKit)
+
+files <- list("sample1.cov", "sample2.cov")
+meth_obj <- methRead(files, assembly="hg38", treatment=c(0,1),
+  context="CpG", mincov=5)
+meth_obj <- unite(meth_obj, destrand=TRUE)
+dmr <- calculateDiffMeth(meth_obj)
+
+## Workflow B — cfDNA Methylation Analysis (Targeted or Genome-Wide)
+
+# cfDNA analysis follows the same core pipeline as BS-Seq, but with extra steps especially if using UMIs or targeted panels:
+
+# Additional Tools/Steps
+
+# deduplication with UMIs (e.g., UMI-tools)
+
+# Targeted region analysis / capture (if using target panels)
+
+# Local smoothing / fragmentomics metrics
+
+# Example Additional Script: UMI Handling
+umi_tools extract --bc-pattern=CCCCCCCC \
+  --stdin=sample.fastq.gz \
+  --stdout=sample_umi_extracted.fastq.gz
+
+# Proceed with Bismark alignment
+
+# Alternate Tools / Pipelines
+
+# These offer more automation or specialized analysis:
+
+# BAT (Bisulfite Analysis Toolkit): end-to-end handling from alignment to DMR calling with modular scripts & even Docker images.
+
+# Methylator: pipeline for quantifying methylation and performing differential analysis (works with short-read BS-Seq).
+
+# Cloud-based WDL pipelines: allow scalable bisulfite workflows (FireCloud / Terra workflows e.g., Bismark-based).
+
+# msPIPE: automated WGBS workflow (alignment → calling → profiling → DMR).
+
+## Analysis, Visualization, & QC Tools
+
+# FastQC / MultiQC: initial QC
+
+# IGV: visualize methylation tracks
+
+# R (ggplot2 / ComplexHeatmap): plotting methylation patterns, clusters
+
+# UCSC Genome Browser: visualize methylation profiles
+
+## Summary 
+
+# Kits:
+
+# Zymo EZ DNA Methylation-Lightning / Direct (low input)
+
+#vQIAGEN EpiTect Fast / QIAsymphony (low input ext.)
+
+# Epigentek / Methylamp ultra-sensitive kits (very low input)
+
+# SuperMethyl™ Max for cfDNA optimized chemistry
+
+# Library prep: Watchmaker DNA Library Prep & QIAseq Targeted Methyl
+
+# Core software and steps:
+
+# FastQC → Trim Galore!
+
+# Bismark alignment → methylation extraction
+
+# Filtering & aggregation
+
+# Differential methylation (methylKit / bsseq / DSS)
+
+# Optional targeted panel / UMI workflows
